@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  cpf       String   @unique
+  phone     String?
+  createdAt DateTime @default(now())
+
+  bookings     Booking[]
+  priceAlerts  PriceAlert[]
+  searchHistory SearchHistory[]
+}
+
+model Airport {
+  iataCode String @id
+  name     String
+  city     String
+  country  String
+  lat      Float
+  lng      Float
+
+  imageUrl String?
+}
+
+model Booking {
+  id                    String        @id @default(cuid())
+  userId                String
+  status                BookingStatus @default(PENDING)
+  totalAmount           Int
+  currency              String        @default("BRL")
+  stripePaymentIntentId String?
+  amadeus_offerId       String?
+  origin                String
+  destination           String
+  departureAt           DateTime
+  arrivalAt             DateTime
+  airline               String
+  flightNumber          String
+  isMilesBooking        Boolean       @default(false)
+  milesProgram          String?
+  milesAmount           Int?
+  createdAt             DateTime      @default(now())
+
+  user       User        @relation(fields: [userId], references: [id])
+  passengers Passenger[]
+}
+
+model Passenger {
+  id          String          @id @default(cuid())
+  bookingId   String
+  firstName   String
+  lastName    String
+  cpf         String
+  dateOfBirth DateTime
+  seatNumber  String?
+  type        PassengerType   @default(ADULT)
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model PriceAlert {
+  id            String   @id @default(cuid())
+  userId        String
+  origin        String
+  destination   String
+  targetPrice   Int
+  isActive      Boolean  @default(true)
+  lastCheckedAt DateTime?
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model SearchHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  origin      String
+  destination String
+  departureAt DateTime
+  passengers  Int
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum PassengerType {
+  ADULT
+  CHILD
+  INFANT
+}
