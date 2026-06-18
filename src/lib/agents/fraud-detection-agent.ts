@@ -116,8 +116,8 @@ export async function detectFraud(input: FraudInput): Promise<FraudCheckResult> 
 
   try {
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 512,
+      model: "claude-opus-4-7",
+      max_tokens: 1024,
       system: [
         {
           type: "text",

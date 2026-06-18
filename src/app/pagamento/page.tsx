@@ -13,6 +13,7 @@ import {
 import { useFlightStore } from "@/store/useFlightStore";
 import Summary from "@/components/booking/Summary";
 import Button from "@/components/ui/Button";
+import GlobeLoader from "@/components/ui/GlobeLoader";
 
 type PaymentMethod = "card" | "pix" | "boleto";
 
@@ -106,6 +107,8 @@ export default function PagamentoPage() {
   ];
 
   return (
+    <>
+    <GlobeLoader show={processing} message="Processando pagamento..." />
     <div className="min-h-screen bg-ink-950">
       <div className="border-b border-ink-800 bg-ink-900">
         <div className="max-w-7xl mx-auto px-4 py-5">
@@ -346,5 +349,6 @@ export default function PagamentoPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

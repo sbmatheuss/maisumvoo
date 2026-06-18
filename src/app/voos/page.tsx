@@ -10,6 +10,7 @@ import FlightFilters, {
   FlightFiltersState,
 } from "@/components/flights/FlightFilters";
 import FlightList from "@/components/flights/FlightList";
+import GlobeLoader from "@/components/ui/GlobeLoader";
 
 function getHourSlot(
   isoDateTime: string
@@ -138,6 +139,8 @@ function VoosPageContent() {
     .join(" — ");
 
   return (
+    <>
+    <GlobeLoader show={isLoading} message="Buscando voos..." />
     <div className="min-h-screen bg-ink-950 pt-20">
       <div className="border-b border-ink-800 bg-ink-900">
         <div className="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between gap-4">
@@ -224,6 +227,7 @@ function VoosPageContent() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
