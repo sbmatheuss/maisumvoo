@@ -10,9 +10,9 @@ interface GlobeLoaderProps {
 
 declare global {
   interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     d3: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     topojson: any;
   }
 }
@@ -73,9 +73,9 @@ export default function GlobeLoader({
       const path = d3.geoPath(projection, ctx);
       const graticule = d3.geoGraticule10();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line
       let land: any = null;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line
       let borders: any = null;
 
       function draw() {
@@ -145,7 +145,7 @@ export default function GlobeLoader({
           borders = topojson.mesh(
             topo,
             topo.objects.countries,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line
             (a: any, b: any) => a !== b
           );
           if (reduce) {

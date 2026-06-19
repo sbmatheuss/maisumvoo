@@ -42,11 +42,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const bookingId = paymentIntent.metadata?.bookingId;
 
         if (bookingId) {
-          await db.booking.updateMany({
-            where: {
-              id: bookingId,
-              stripePaymentIntentId: paymentIntent.id,
-            },
+          await db.booking.update({
+            where: { id: bookingId },
             data: { status: "CONFIRMED" },
           });
           console.log(`[Webhook] Booking ${bookingId} confirmed via payment_intent.succeeded`);

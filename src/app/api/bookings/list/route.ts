@@ -25,10 +25,13 @@ export async function GET(
     let bookings: BookingWithPassengers[] = [];
 
     if (email) {
-      // Busca pelo e-mail do User vinculado ao Booking
+      // Busca pelo e-mail do User vinculado ao Booking ou pelo contactEmail do próprio Booking
       bookings = await db.booking.findMany({
         where: {
-          user: { email },
+          OR: [
+            { user: { email } },
+            { contactEmail: email },
+          ],
         },
         include: { passengers: true },
         orderBy: { createdAt: "desc" },

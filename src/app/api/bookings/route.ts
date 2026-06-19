@@ -64,9 +64,16 @@ export async function POST(
     // Convert totalAmount to cents (integer) for Prisma
     const totalAmountCents = Math.round(data.totalAmount * 100);
 
+    const existingUser = await db.user.findUnique({
+      where: { email: data.contactEmail },
+      select: { id: true },
+    });
+
     const booking = await db.booking.create({
       data: {
-        userId: "guest-user",
+        userId: existingUser?.id ?? null,
+        contactEmail: data.contactEmail,
+        contactPhone: data.contactPhone,
         status: "PENDING",
         totalAmount: totalAmountCents,
         currency: "BRL",
