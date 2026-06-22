@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { ArrowLeftRight } from "lucide-react";
 import { clsx } from "clsx";
@@ -43,6 +44,7 @@ interface SearchFormProps {
 }
 
 export default function SearchForm({ onSearch }: SearchFormProps) {
+  const router = useRouter();
   const [tripType, setTripType] = useState<TripType>("roundtrip");
 
   const { control, handleSubmit, setValue, watch } =
@@ -97,7 +99,22 @@ export default function SearchForm({ onSearch }: SearchFormProps) {
       tripType,
       cabinClass: data.cabinClass,
     };
+
     onSearch?.(params);
+
+    const query = new URLSearchParams({
+      origin: params.origin,
+      destination: params.destination,
+      departureDate: params.departureDate,
+      adults: String(params.adults),
+      children: String(params.children),
+      infants: String(params.infants),
+      tripType: params.tripType,
+      cabinClass: params.cabinClass,
+      ...(params.returnDate ? { returnDate: params.returnDate } : {}),
+    });
+
+    router.push(`/voos?${query.toString()}`);
   }
 
   const cellLabel = (text: string) => (
