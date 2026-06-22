@@ -1,5 +1,7 @@
 import Stripe from "stripe";
 
+type PaymentMethodType = "card" | "pix" | "boleto";
+
 function getStripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error("STRIPE_SECRET_KEY não configurada");
@@ -9,14 +11,22 @@ function getStripe(): Stripe {
 export async function createPaymentIntent(
   amount: number,
   currency: string,
-  bookingId: string
+  bookingId: string,
+  paymentMethod: PaymentMethodType = "card"
 ): Promise<Stripe.PaymentIntent> {
-  return getStripe().paymentIntents.create({
+  const params: Stripe.PaymentIntentCreateParams = {
     amount: Math.round(amount * 100),
     currency: currency.toLowerCase(),
     metadata: { bookingId },
-    automatic_payment_methods: { enabled: true },
-  });
+  };
+
+  if (paymentMethod === "card") {
+    params.automatic_payment_methods = { enabled: true };
+  } else {
+    params.payment_method_types = [paymentMethod];
+  }
+
+  return getStripe().paymentIntents.create(params);
 }
 
 export function constructWebhookEvent(body: string, signature: string): Stripe.Event {

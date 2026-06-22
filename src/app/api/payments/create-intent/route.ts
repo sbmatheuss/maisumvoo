@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 
 const bodySchema = z.object({
   bookingId: z.string().min(1, "bookingId é obrigatório"),
+  paymentMethod: z.enum(["card", "pix", "boleto"]).default("card"),
 });
 
 export async function POST(
@@ -25,7 +26,7 @@ export async function POST(
       );
     }
 
-    const { bookingId } = parsed.data;
+    const { bookingId, paymentMethod } = parsed.data;
 
     // Busca o booking no Prisma
     const booking = await db.booking.findUnique({
@@ -119,7 +120,8 @@ export async function POST(
     const paymentIntent = await createPaymentIntent(
       amountInReais,
       booking.currency,
-      bookingId
+      bookingId,
+      paymentMethod
     );
 
     // Atualiza o booking com o stripePaymentIntentId

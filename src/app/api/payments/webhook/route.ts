@@ -66,6 +66,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         break;
       }
 
+      // Pix e Boleto são confirmados via charge.captured (não payment_intent.succeeded)
+      case "charge.captured": {
+        const charge = event.data.object as any;
+        const paymentIntentId = charge.payment_intent;
+        const paymentMethodType = charge.payment_method_details?.type;
+
+        if (paymentIntentId && (paymentMethodType === "pix" || paymentMethodType === "boleto")) {
+          const booking = await db.booking.findFirst({
+            where: { stripePaymentIntentId: paymentIntentId },
+          });
+
+          if (booking && booking.status !== "CONFIRMED") {
+            await db.booking.update({
+              where: { id: booking.id },
+              data: { status: "CONFIRMED" },
+            });
+            console.log(`[Webhook] Booking ${booking.id} confirmed via charge.captured (${paymentMethodType})`);
+          }
+        }
+        break;
+      }
+
+      case "charge.failed": {
+        const charge = event.data.object as any;
+        const paymentIntentId = charge.payment_intent;
+        if (paymentIntentId) {
+          console.log(`[Webhook] Charge failed for intent ${paymentIntentId}. Status remains PENDING.`);
+        }
+        break;
+      }
+
       default:
         console.log(`[Webhook] Unhandled event type: ${event.type}`);
     }

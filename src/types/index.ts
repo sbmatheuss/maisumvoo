@@ -122,6 +122,24 @@ export type MilesProgram =
   | "AZUL_FIDELIDADE"
   | "TUDO_AZUL";
 
+export type ContactSubjectValue =
+  | "reserva"
+  | "cancelamento"
+  | "reembolso"
+  | "bagagem"
+  | "checkin"
+  | "conta"
+  | "pagamento"
+  | "outro";
+
+export interface ContactFormValues {
+  name: string;
+  email: string;
+  cpfOrReservation?: string;
+  subject: ContactSubjectValue;
+  message: string;
+}
+
 export interface MilesEstimate {
   origin: string;
   destination: string;
