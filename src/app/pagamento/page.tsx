@@ -158,13 +158,11 @@ function PixSection({
 
     setProcessing(true);
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { paymentIntent, error } = await (stripe as any).confirmPixPayment(clientSecret);
       if (error) {
         onError(error.message ?? "Erro ao gerar código Pix.");
         return;
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const next = (paymentIntent as any)?.next_action?.pix_display_qr_code;
       if (next) {
         setPixData({
@@ -200,6 +198,7 @@ function PixSection({
       <div className="space-y-6">
         <div className="flex flex-col items-center gap-4">
           <div className="bg-white p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={pixData.imageUrl} alt="QR Code Pix" className="w-48 h-48" />
           </div>
           <div className="text-center">
@@ -290,7 +289,6 @@ function BoletoSection({
 
     setProcessing(true);
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { paymentIntent, error } = await (stripe as any).confirmBoletoPayment(clientSecret, {
         payment_method: {
           billing_details: {
@@ -312,7 +310,6 @@ function BoletoSection({
         return;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const next = (paymentIntent as any)?.next_action?.boleto_display_details;
       if (next) {
         setBoletoData({
