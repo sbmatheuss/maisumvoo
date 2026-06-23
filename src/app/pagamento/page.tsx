@@ -405,6 +405,107 @@ function BoletoSection({
   );
 }
 
+// ─── Simulate Payment Section ────────────────────────────────────────────────
+
+interface SimulatePaymentSectionProps {
+  bookingId: string | null;
+  onError: (msg: string) => void;
+}
+
+function SimulatePaymentSection({ bookingId, onError }: SimulatePaymentSectionProps) {
+  const router = useRouter();
+  const [processing, setProcessing] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const handleSimulate = async () => {
+    if (!bookingId) {
+      onError("Nenhuma reserva encontrada. Volte e selecione um voo.");
+      return;
+    }
+    setProcessing(true);
+    try {
+      const res = await fetch("/api/payments/simulate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId }),
+      });
+      const json = await res.json();
+      if (json.error) {
+        onError(json.error);
+        return;
+      }
+      setDone(true);
+      setTimeout(() => router.push("/minhas-viagens"), 1500);
+    } catch {
+      onError("Erro ao simular pagamento. Tente novamente.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  if (done) {
+    return (
+      <div
+        className="border border-green-800 bg-green-950/30 p-6 flex items-center gap-4"
+        style={{ borderRadius: "2px" }}
+      >
+        <CheckCircle size={24} strokeWidth={1.5} className="text-green-400 shrink-0" />
+        <div>
+          <p className="font-serif text-white text-lg">Pagamento confirmado!</p>
+          <p className="font-sans text-sm text-ink-400 mt-0.5">
+            Redirecionando para suas viagens...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-ink-800 bg-ink-900 p-6 space-y-5" style={{ borderRadius: "2px" }}>
+      <div>
+        <p className="font-sans text-xs uppercase tracking-widest text-ink-400 mb-1">
+          Ambiente de desenvolvimento
+        </p>
+        <h2 className="font-serif text-lg font-bold text-white">
+          Simular pagamento
+        </h2>
+        <p className="font-sans text-sm text-ink-400 mt-2">
+          O Stripe não está configurado. Use o botão abaixo para confirmar a reserva diretamente, simulando um pagamento aprovado.
+        </p>
+      </div>
+
+      <div className="border border-ink-700 bg-ink-800/40 p-4 space-y-2">
+        {[
+          "Reserva confirmada instantaneamente",
+          "Nenhum dado de cartão necessário",
+          "Fluxo idêntico ao pagamento real",
+        ].map((item) => (
+          <div key={item} className="flex items-center gap-2">
+            <CheckCircle size={13} strokeWidth={1.5} className="text-gold shrink-0" />
+            <p className="font-sans text-xs text-ink-400">{item}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-3 text-ink-500">
+          <ShieldCheck size={16} strokeWidth={1.5} />
+          <span className="font-sans text-xs">Somente para fins de demonstração</span>
+        </div>
+        <Button
+          variant="primary"
+          size="lg"
+          onClick={handleSimulate}
+          disabled={processing || !bookingId}
+        >
+          {processing ? "Confirmando..." : "Simular pagamento aprovado"}
+          {!processing && <ArrowRight size={16} strokeWidth={1.5} />}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function PagamentoPage() {
@@ -531,21 +632,12 @@ export default function PagamentoPage() {
                 </div>
               </div>
 
-              {/* Aviso: Stripe não configurado */}
+              {/* Simulação de pagamento (quando Stripe não está configurado) */}
               {!publishableKey && (
-                <div
-                  className="border border-yellow-900/50 bg-yellow-950/20 text-yellow-400 font-sans text-sm px-5 py-4 flex items-start gap-3"
-                  style={{ borderRadius: "2px" }}
-                >
-                  <AlertTriangle size={16} strokeWidth={1.5} className="shrink-0 mt-0.5" />
-                  <p>
-                    Stripe não está configurado.{" "}
-                    <span className="text-yellow-500">
-                      Defina <code>NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code> no{" "}
-                      <code>.env.local</code> para habilitar pagamentos.
-                    </span>
-                  </p>
-                </div>
+                <SimulatePaymentSection
+                  bookingId={bookingId}
+                  onError={setError}
+                />
               )}
 
               {/* Cartão de crédito */}
